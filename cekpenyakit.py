@@ -1,6 +1,7 @@
+import tkinter as tk
+from tkinter import messagebox
 import re;
 
-# Basis Pengetahuan
 knowledge_base = {
     'influenza': {'demam', 'batuk', 'pilek', 'sakit tenggorokan', 'kelelahan'},
     'diabetes tipe 2': {'sering haus', 'sering buang air kecil', 'kelelahan', 'penglihatan kabur', 'luka yang lama sembuh'},
@@ -54,7 +55,6 @@ knowledge_base = {
     'hepatitis b': {'kuning pada kulit dan mata', 'nyeri perut', 'kelelahan', 'mual', 'urin berwarna gelap'},
 }
 
-# Forward Chaining
 def forward_chaining(gejala):
     kemungkinan_penyakit = {}
     for penyakit, gejalanya in knowledge_base.items():
@@ -62,34 +62,60 @@ def forward_chaining(gejala):
         kemungkinan_penyakit[penyakit] = len(cocok) / len(gejalanya)
     return kemungkinan_penyakit
 
-# Backward Chaining
 def backward_chaining(penyakit, gejala):
     if penyakit in knowledge_base:
         return knowledge_base[penyakit].issubset(gejala)
     return False
 
-# Main Program
-def main():
-    print("Masukkan gejala yang dialami (pisahkan dengan koma):")
-    user_input = input()
-    gejala = set(re.split(r',\s*', user_input.strip().lower()))
-    
-    # Forward Chaining
-    diagnosis_forward = forward_chaining(gejala)
-    
-    # Menampilkan kemungkinan penyakit
-    print("Kemungkinan penyakit dan persentase kecocokan:")
-    for penyakit, persentase in sorted(diagnosis_forward.items(), key=lambda item: item[1], reverse=True):
-        print(f"{penyakit}: {persentase * 100:.2f}%")
+def diagnose():
+    user_input = entry.get()
+    if not user_input:
+        messagebox.showwarning("Input Error", "Masukkan gejala yang dialami.")
+        return
 
-    # Backward Chaining
+    gejala = set(re.split(r',\s*', user_input.strip().lower()))
+
+
+    diagnosis_forward = forward_chaining(gejala)
+
+
+    result_text = "Kemungkinan penyakit dan persentase kecocokan:\n"
+    for penyakit, persentase in sorted(diagnosis_forward.items(), key=lambda item: item[1], reverse=True):
+        result_text += f"{penyakit}: {persentase * 100:.2f}%\n"
+
+
+    confirmed_diseases = []
     for penyakit, persentase in diagnosis_forward.items():
         if persentase == 1.0:
             diagnosis_backward = backward_chaining(penyakit, gejala)
             if diagnosis_backward:
-                print(f"Diagnosis (Backward Chaining) mengonfirmasi: {penyakit}")
-            else :
-                print(f"Diagnosis (Backward Chaining) tidak dapat mengkonfirmasi penyakit ")
+                confirmed_diseases.append(penyakit)
+                result_text += f"Diagnosis (Backward Chaining) mengonfirmasi: {penyakit}\n"
+            else:
+                result_text += f"Diagnosis (Backward Chaining) tidak dapat mengkonfirmasi penyakit: {penyakit}\n"
 
-if __name__ == "__main__":
-    main()
+    text_result.config(state=tk.NORMAL)
+    text_result.delete(1.0, tk.END)
+    text_result.insert(tk.END, result_text)
+    text_result.config(state=tk.DISABLED)
+
+
+root = tk.Tk()
+root.title("Diagnosa Penyakit")
+root.geometry("500x400")
+
+
+label = tk.Label(root, text="Masukkan gejala yang dialami (pisahkan dengan koma):")
+label.pack(pady=10)
+
+entry = tk.Entry(root, width=50)
+entry.pack(pady=10)
+
+button = tk.Button(root, text="Diagnosa", command=diagnose)
+button.pack(pady=10)
+
+text_result = tk.Text(root, width=60, height=15, state=tk.DISABLED)
+text_result.pack(pady=10)
+
+
+root.mainloop()
