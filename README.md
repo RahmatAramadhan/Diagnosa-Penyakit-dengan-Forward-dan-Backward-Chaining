@@ -16,8 +16,8 @@ Aplikasi ini adalah alat sederhana untuk mendiagnosa penyakit berdasarkan gejala
 
 1. **Clone repository ini**:
     ```bash
-    git clone https://github.com/rahmataramadhan/diagnosa-penyakit.git
-    cd diagnosa-penyakit
+    git clone https://github.com/RahmatAramadhan/TugasAkhirKecerdasanBuatan
+    cd TugasAkhirKecerdasanBuatan
     ```
 
 2. **Instalasi Dependensi**:
